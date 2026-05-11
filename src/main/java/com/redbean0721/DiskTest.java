@@ -26,7 +26,7 @@ public class DiskTest implements Runnable {
     @CommandLine.Option(names = {"-r", "--random"}, description = "是否啟用隨機 4K 寫入測試, 預設 false", defaultValue = "false")
     private boolean randomMode;
 
-    @CommandLine.Option(names = {"-t", "--threads"}, description = "執行緒數量 (併發寫入檔案數), 預設 4")
+    @CommandLine.Option(names = {"-t", "--threads"}, description = "執行緒數量 (併發寫入檔案數), 預設 4", defaultValue = "4")
     private int threadCount;
 
     @CommandLine.Option(names = {"--direct"}, description = "強制寫入磁碟 (模擬繞過快取), 預設 false", defaultValue = "false")
