@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+    id("com.gradleup.shadow") version "9.4.1"
+}
+
+group = 'com.redbean0721'
+version = '1.0-SNAPSHOT-20260508-1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:6.0.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // CLI 框架
+    implementation("info.picocli:picocli:4.7.5")
+    annotationProcessor("info.picocli:picocli-codegen:4.7.5")
+}
+
+test {
+    useJUnitPlatform()
+}
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+tasks.withType(ShadowJar).configureEach {
+    manifest {
+        attributes "Main-Class": "com.redbean0721.Main"
+    }
+    archiveBaseName.set("PerfLab")
+    archiveClassifier.set("all")
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+}
