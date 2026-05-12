@@ -5,7 +5,7 @@ import picocli.CommandLine.Command;
 
 @Command(name = "perflab",
         mixinStandardHelpOptions = true,
-        version = "1.1-SNAPSHOT-20260511-1",
+        version = "1.2-SNAPSHOT-20260512-1",
         description = "System Performance & Stress Lab",
         subcommands = { DiskTest.class })
 public class Main implements Runnable {

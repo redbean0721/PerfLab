@@ -32,11 +32,31 @@ public class DiskTest implements Runnable {
     @CommandLine.Option(names = {"--direct"}, description = "強制寫入磁碟 (模擬繞過快取), 預設 false", defaultValue = "false")
     private boolean directMode;
 
-    // 統計全域速度
-    private final LongAdder bytesWrittenTotal = new LongAdder();
+    private final LongAdder bytesWrittenTotal = new LongAdder();    // 統計全域速度
+    private long totalBytesEverWritten = 0; // 統計總寫入量
+    private long startTime;
 
     @Override
     public void run() {
+        this.startTime = System.currentTimeMillis();
+
+        // 註冊 Shutdown Hook
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            long endTime = System.currentTimeMillis();
+            double durationSec = (endTime - startTime) / 1000.0;
+            double totalGB = totalBytesEverWritten / (1024.0 * 1024.0 * 1024.0);
+            double avgSpeed = durationSec > 0 ? (totalGB * 1024.0 / durationSec) : 0;
+
+            System.out.println("\n\n" + "=".repeat(40));
+            System.out.println("          PerfLab 測試報告");
+            System.out.println("=".repeat(40));
+            System.out.printf(" 測試時長     : %.2f 秒%n", durationSec);
+            System.out.printf(" 累計寫入量   : %.4f GB%n", totalGB);
+            System.out.printf(" 平均寫入速度 : %.2f MB/s%n", avgSpeed);
+            System.out.println("=".repeat(40));
+            System.out.println("測試結束, 檔案刪除中");
+        }));
+
         System.out.println("正在清理舊的檔案...");
         File dir = new File(".");
         File[] files = dir.listFiles((d, name) -> name.startsWith("test_part_") && name.endsWith(".dat"));
@@ -84,8 +104,13 @@ public class DiskTest implements Runnable {
                 // 每秒顯示一次速度
                 long currentTime = System.currentTimeMillis();
                 long bytes = bytesWrittenTotal.sumThenReset();
+
+                // 更新累積總量
+                totalBytesEverWritten += bytes;
+
                 double speed = bytes / (1024.0 * 1024.0 * ((currentTime - lastTime) / 1000.0));
-                System.out.printf("\r當前總 I/O 吞吐量: %.2f MB/s", speed);
+                double totalGB = totalBytesEverWritten / (1024.0 * 1024.0 * 1024.0);
+                System.out.printf("\r當前總 I/O 吞吐量: %.2f MB/s | 累計寫入量: %.2f GB", speed, totalGB);
                 lastTime = currentTime;
             }
         });
